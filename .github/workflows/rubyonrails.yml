@@ -12,12 +12,12 @@ on:
   pull_request:
     branches: 
       - "**"
-defaults:
-  run:
-    working-directory: ./backend
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     services:
       postgres:
         image: postgres:11-alpine
