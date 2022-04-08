@@ -1,4 +1,6 @@
+# frozen_string_literal: true
+
 if Doorkeeper::Application.count.zero?
-  Doorkeeper::Application.create!(name: 'Test Client', redirect_uri: '', scopes: '')
+  Doorkeeper::Application.create!(name: 'React Client', redirect_uri: '', scopes: '')
 
 end
