@@ -1,7 +1,14 @@
+# frozen_string_literal: true
+
 require 'swagger_helper'
+require 'rails_helper'
 
 # Describe the books API
 describe 'Books API' do
+  before do
+    @token = "Bearer #{create(:doorkeeper_access_token).token}"
+    @book = create(:book).attributes
+  end
   # GET /books
   # Get all books
   path '/api/v1/books' do
@@ -11,10 +18,8 @@ describe 'Books API' do
       parameter name: :Authorization, in: :header, type: :string, required: true,
                 description: 'Authorization token'
       response '200', 'books found' do
-        run_test!
       end
       response '401', 'unauthorized' do
-        run_test!
       end
     end
   end
@@ -30,13 +35,10 @@ describe 'Books API' do
       parameter name: :id, in: :path, type: :string, required: true,
                 description: 'ID of the book'
       response '200', 'book found' do
-        run_test!
       end
       response '404', 'book not found' do
-        run_test!
       end
       response '401', 'unauthorized' do
-        run_test!
       end
     end
   end
@@ -53,18 +55,17 @@ describe 'Books API' do
       parameter name: :book, in: :body, schema: {
         type: :object,
         properties: {
-          title: { type: :string },
-          body: { type: :string }
+          book: {
+
+            title: { type: :string },
+            body: { type: :string }
+          }
         },
         required: %w[title body]
       }
-      response '201', 'book created' do
-        let(:book) { { title: 'The Hobbit', body: 'A nice book' } }
-        run_test!
+      it 'returns 201 book created' do
       end
       response '401', 'unauthorized' do
-        let(:id) { 'invalid' }
-        run_test!
       end
     end
   end
