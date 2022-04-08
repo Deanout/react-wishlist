@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: backend
     services:
       postgres:
         image: postgres:11-alpine
@@ -41,6 +41,7 @@ jobs:
           bundler-cache: true
       - name: Bundle install
         run: bundle exec bundle install
+        working-directory: backend
       # Add or replace database setup steps here
       - name: Set up database schema
         run: bin/rails db:schema:load
@@ -63,8 +64,6 @@ jobs:
         with:
           ruby-version: '3.0.3'
           bundler-cache: true
-      - name: Bundle install
-        run: bundle exec bundle install
       # Add or replace any other lints here
       - name: Security audit dependencies
         run: bundle exec bundle audit --update
