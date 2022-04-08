@@ -37,7 +37,7 @@ jobs:
       - name: Install Ruby and gems
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.0.1'
+          ruby-version: '3.0.3'
           bundler-cache: true
       # Add or replace database setup steps here
       - name: Set up database schema
@@ -54,8 +54,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Install Ruby and gems
-        uses: ruby/setup-ruby@v1 # v3.0.1
+        uses: ruby/setup-ruby@v1
         with:
+          ruby-version: '3.0.3'
           bundler-cache: true
       # Add or replace any other lints here
       - name: Security audit dependencies
