@@ -53,6 +53,8 @@ group :development, :test do
   gem 'debug', platforms: %i[mri mingw x64_mingw]
   # A library for generating fake data such as names, addresses, and phone numbers [https://github.com/faker-ruby/faker]
   gem 'faker', git: 'https://github.com/faker-ruby/faker.git', branch: 'master'
+
+  gem 'rspec-rails'
 end
 
 group :development do
@@ -73,8 +75,6 @@ group :test do
   gem 'webdrivers'
   # A library for setting up Ruby objects as test data [https://github.com/thoughtbot/factory_bot_rails]
   gem 'factory_bot_rails'
-  gem 'rspec'
-  gem 'rspec-core'
 end
 
 gem 'devise', '~> 4.8'
@@ -82,3 +82,5 @@ gem 'devise', '~> 4.8'
 gem 'doorkeeper', '~> 5.5'
 
 gem 'rack-cors', '~> 1.1'
+
+gem 'rswag', '~> 2.5'
