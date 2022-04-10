@@ -1,12 +1,15 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { createUserWithEmailAndPassword } from "../../api/sessionApi";
+import {
+  createUserWithEmailAndPassword,
+  loginWithEmailAndPassword,
+} from "../../api/sessionApi";
 import { RootState } from "../../app/store";
 
 export interface User {
-  id: string;
-  email: string;
-  role: string;
-  createdAt: string;
+  id?: string;
+  email?: string;
+  role?: string;
+  createdAt?: string;
 }
 
 export interface UserLoginData {
@@ -14,30 +17,30 @@ export interface UserLoginData {
   password: string;
 }
 interface AuthState {
-  currentUser: User | null | undefined;
+  currentUser?: User;
   loading: boolean;
   error: boolean;
-  errorMessage: string;
-  accessToken: string | null | undefined;
-  refreshToken: string | null | undefined;
-  expiresIn: number | null | undefined;
-  tokenType: string | null | undefined;
+  errorMessage?: string;
+  accessToken?: string;
+  refreshToken?: string;
+  expiresIn?: number;
+  tokenType?: string;
 }
 
 const initialState: AuthState = {
   currentUser: {
-    id: "",
-    email: "",
-    role: "",
-    createdAt: "",
+    id: undefined,
+    email: undefined,
+    role: undefined,
+    createdAt: undefined,
   },
   loading: false,
   error: false,
-  errorMessage: "",
-  accessToken: null,
-  refreshToken: null,
-  expiresIn: null,
-  tokenType: null,
+  errorMessage: undefined,
+  accessToken: undefined,
+  refreshToken: undefined,
+  expiresIn: undefined,
+  tokenType: undefined,
 };
 
 export const signUpUser = createAsyncThunk(
@@ -49,7 +52,23 @@ export const signUpUser = createAsyncThunk(
     );
     console.log(response);
     // if response has errors rejectwithvalue
-    if (response.data.errors) {
+    if (response.errors) {
+      return rejectWithValue(response.data);
+    }
+    return response;
+  }
+);
+
+export const loginUser = createAsyncThunk(
+  "session/loginUser",
+  async (payload: UserLoginData, { rejectWithValue }) => {
+    let response = await loginWithEmailAndPassword(
+      payload.email,
+      payload.password
+    );
+    console.log(response);
+    // if response has errors rejectwithvalue
+    if (response.error) {
       return rejectWithValue(response.data);
     }
     return response;
@@ -82,7 +101,7 @@ export const sessionSlice = createSlice({
         state.currentUser!.id = data.id;
         state.currentUser!.email = data.email;
         state.currentUser!.role = data.role;
-        state.currentUser!.createdAt = data.created_at.toString();
+        state.currentUser!.createdAt = data.created_at;
 
         state.loading = false;
         state.error = false;
@@ -91,6 +110,22 @@ export const sessionSlice = createSlice({
         state.loading = false;
         state.error = true;
         state.errorMessage = action.payload.errors;
+      })
+      .addCase(loginUser.pending, (state) => {
+        state.loading = true;
+        state.error = false;
+      })
+      .addCase(loginUser.fulfilled, (state, action: any) => {
+        state.accessToken = action.payload.access_token;
+        state.refreshToken = action.payload.refresh_token;
+        state.expiresIn = action.payload.expires_in;
+        state.loading = false;
+        state.error = false;
+      })
+      .addCase(loginUser.rejected, (state, action: any) => {
+        state.loading = false;
+        state.error = true;
+        state.errorMessage = action.payload.error;
       });
   },
 });
