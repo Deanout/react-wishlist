@@ -9,6 +9,8 @@
   <%= link_to "Sign in", new_user_session_path %>
   <%= link_to "Sign up", new_user_registration_path %>
 <% end %>
+<p>For DoorkeeperAPI documentation, check <%= link_to "here", swagger_root_path %></p>
+<p>For the Bookstore API documentation, check <%= link_to "here", rswag_ui_path %></p>
 <p>You can test the API with following credentials.</p>
 <div class="container">
   <%= @application.as_json %>
