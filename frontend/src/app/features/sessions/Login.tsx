@@ -3,14 +3,15 @@ import { Alert, Box, Button, Card, CardActions, CardContent, Container, Divider,
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { loginUser, selectLoading } from './sessionSlice';
+import { RootState } from '../../store';
+import { loginUser } from './sessionSlice';
 
 function Login() {
     const emailRef = useRef<HTMLInputElement>();
     const passwordRef = useRef<HTMLInputElement>();
     const [errors, setErrors] = useState<Array<string>>([])
     const [showPassword, setShowPassword] = useState<boolean>(false);
-    const loading = useSelector(selectLoading)
+    const loading = useSelector((state: RootState) => state.session.loading);
     const navigate = useNavigate();
     const dispatch = useDispatch();
 

@@ -13,15 +13,18 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import TokenRefresher from '../sessions/TokenRefresher';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 
 const pages = ['Home', 'Create Account', 'Login'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 const ResponsiveAppBar = () => {
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
+  const accessToken = useSelector((state : RootState) => state.session.accessToken);
+  const loading = useSelector((state : RootState) => state.session.loading);
+  const currentUser = useSelector((state : RootState) => state.session.currentUser);
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -43,6 +46,63 @@ const ResponsiveAppBar = () => {
     React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     event?.preventDefault();
     navigate(route);
+  }
+
+  function handleLogout(event: React.MouseEvent<HTMLLIElement, MouseEvent>) {
+    event.preventDefault();
+    handleCloseUserMenu();
+    navigate('/logout');
+  }
+
+  let sessionLinks;
+  if (accessToken) {
+    sessionLinks = <Box sx={{ flexGrow: 0 }}>
+    <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+      <Typography marginRight={2} marginTop={1} textAlign="center">{currentUser?.email}</Typography>
+      <Tooltip title="Open settings">
+        <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+          <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+        </IconButton>
+      </Tooltip>
+    </Box>
+    <Menu
+      sx={{ mt: '45px' }}
+      id="menu-appbar"
+      anchorEl={anchorElUser}
+      anchorOrigin={{
+        vertical: 'top',
+        horizontal: 'right',
+      }}
+      keepMounted
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'right',
+      }}
+      open={Boolean(anchorElUser)}
+      onClose={handleCloseUserMenu}
+    >
+        <MenuItem onClick={(event) => handleLogout(event)}>
+          <Typography textAlign="center">Logout</Typography>
+        </MenuItem>
+    </Menu>
+  </Box>;
+  } else if (!accessToken && !loading) {
+    sessionLinks = <>
+      <Button
+      onClick={(event) => handleNavigate("/signup", event)}
+      sx={{ my: 2, color: 'white', display: 'block' }}
+      >
+      Create Account
+      </Button>
+      <Button
+        onClick={(event) => handleNavigate("/login", event)}
+        sx={{ my: 2, color: 'white', display: 'block' }}
+        >
+        Login
+      </Button>
+    </>;
+  } else {
+    sessionLinks = <></>;
   }
 
   return (
@@ -87,17 +147,9 @@ const ResponsiveAppBar = () => {
                 display: { xs: 'block', md: 'none' },
               }}
             >
-              
               <MenuItem onClick={(event) => handleNavigate("/", event)}>
                 <Typography textAlign="center">Home</Typography>
-              </MenuItem>
-              <MenuItem onClick={(event) => handleNavigate("/signup", event)}>
-                <Typography textAlign="center">Create Account</Typography>
-              </MenuItem>
-              <MenuItem onClick={(event) => handleNavigate("/login", event)}>
-                <Typography textAlign="center">Login</Typography>
-              </MenuItem>
-              
+              </MenuItem>              
             </Menu>
           </Box>
           <Typography
@@ -115,55 +167,8 @@ const ResponsiveAppBar = () => {
               >
                 Home
               </Button>
-              <Button
-                onClick={(event) => handleNavigate("/signup", event)}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
-                Create Account
-              </Button>
-              <Button
-                onClick={(event) => handleNavigate("/login", event)}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
-                Login
-              </Button>
-              <Button
-                onClick={(event) => handleNavigate("/logout", event)}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
-                Logout
-              </Button>
           </Box>
-
-          <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: '45px' }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-            >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
+              {sessionLinks}
         </Toolbar>
       </Container>
     </AppBar>

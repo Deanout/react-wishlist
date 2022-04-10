@@ -2,16 +2,12 @@
 
 module Doorkeeper
   class TokensController < Doorkeeper::ApplicationMetalController
-    include ActionController::Cookies
     before_action :validate_presence_of_client, only: [:revoke]
 
     def create
       headers.merge!(authorize_response.headers)
-      body = authorize_response.body
-      status = authorize_response.status
-
-      render json: body,
-             status: status
+      render json: authorize_response.body,
+             status: authorize_response.status
     rescue Errors::DoorkeeperError => e
       handle_token_exception(e)
     end
@@ -124,7 +120,7 @@ module Doorkeeper
     # the access token model.
     def token
       @token ||= Doorkeeper.config.access_token_model.by_token(params['token']) ||
-                 Doorkeeper.config.access_token_model.by_refresh_token(token)
+                 Doorkeeper.config.access_token_model.by_refresh_token(params['token'])
     end
 
     def strategy
