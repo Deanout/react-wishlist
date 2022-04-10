@@ -5,9 +5,6 @@ class ApiController < ApplicationController
   # before_action :authenticate_user!
   before_action :doorkeeper_authorize!
 
-  # Skip checking CSRF token authenticity for API requests.
-  skip_before_action :verify_authenticity_token
-
   # Set response type
   respond_to :json
 
