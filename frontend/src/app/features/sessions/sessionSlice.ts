@@ -2,8 +2,9 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
   createUserWithEmailAndPassword,
   loginWithEmailAndPassword,
+  requestAccessTokenWithRefreshToken,
 } from "../../api/sessionApi";
-import { RootState } from "../../app/store";
+import { RootState } from "../../store";
 
 export interface User {
   id?: string;
@@ -22,7 +23,7 @@ interface AuthState {
   error: boolean;
   errorMessage?: string;
   accessToken?: string;
-  refreshToken?: string;
+  refreshToken?: string | null;
   expiresIn?: number;
   tokenType?: string;
 }
@@ -38,7 +39,7 @@ const initialState: AuthState = {
   error: false,
   errorMessage: undefined,
   accessToken: undefined,
-  refreshToken: undefined,
+  refreshToken: getRefreshToken(),
   expiresIn: undefined,
   tokenType: undefined,
 };
@@ -50,7 +51,6 @@ export const signUpUser = createAsyncThunk(
       payload.email,
       payload.password
     );
-    console.log(response);
     // if response has errors rejectwithvalue
     if (response.errors) {
       return rejectWithValue(response.data);
@@ -66,8 +66,22 @@ export const loginUser = createAsyncThunk(
       payload.email,
       payload.password
     );
-    console.log(response);
     // if response has errors rejectwithvalue
+    console.log(response);
+    if (response.error) {
+      return rejectWithValue(response.data);
+    }
+    return response;
+  }
+);
+
+export const refreshAccessToken = createAsyncThunk(
+  "session/refreshAccessToken",
+  async (refreshToken: any, { rejectWithValue }) => {
+    if (!refreshToken) {
+      return rejectWithValue("No refresh token");
+    }
+    let response = await requestAccessTokenWithRefreshToken(refreshToken);
     if (response.error) {
       return rejectWithValue(response.data);
     }
@@ -79,12 +93,19 @@ export const sessionSlice = createSlice({
   name: "session",
   initialState,
   reducers: {
-    //   setCurrentUser: (state, action) => {
-    //     return produce(state, (draftState) => {
-    //       draftState.currentUser = action.payload.user;
-    //       draftState.loading = false;
-    //     });
-    //   },
+    logout: (state) => {
+      state.currentUser = {
+        id: undefined,
+        email: undefined,
+        role: undefined,
+        createdAt: undefined,
+      };
+      state.accessToken = undefined;
+      state.refreshToken = undefined;
+      state.expiresIn = undefined;
+      state.tokenType = undefined;
+      removeRefreshToken();
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -103,6 +124,8 @@ export const sessionSlice = createSlice({
         state.currentUser!.role = data.role;
         state.currentUser!.createdAt = data.created_at;
 
+        storeRefreshToken(data.refresh_token);
+
         state.loading = false;
         state.error = false;
       })
@@ -119,6 +142,9 @@ export const sessionSlice = createSlice({
         state.accessToken = action.payload.access_token;
         state.refreshToken = action.payload.refresh_token;
         state.expiresIn = action.payload.expires_in;
+
+        storeRefreshToken(action.payload.refresh_token);
+
         state.loading = false;
         state.error = false;
       })
@@ -126,9 +152,26 @@ export const sessionSlice = createSlice({
         state.loading = false;
         state.error = true;
         state.errorMessage = action.payload.error;
+      })
+      .addCase(refreshAccessToken.pending, (state) => {
+        state.loading = true;
+        state.error = false;
+      })
+      .addCase(refreshAccessToken.fulfilled, (state, action: any) => {
+        state.accessToken = action.payload.access_token;
+        state.refreshToken = action.payload.refresh_token;
+        state.expiresIn = action.payload.expires_in;
+        state.loading = false;
+        state.error = false;
+      })
+      .addCase(refreshAccessToken.rejected, (state, action: any) => {
+        state.loading = false;
+        state.error = true;
       });
   },
 });
+
+export const { logout } = sessionSlice.actions;
 
 export const selectLoading = (state: RootState) => state.session?.loading;
 
@@ -138,3 +181,15 @@ export const selectCurrentUser = (state: RootState) =>
   state.session?.currentUser;
 
 export default sessionSlice.reducer;
+
+function storeRefreshToken(token: string) {
+  localStorage.setItem("refreshToken", token);
+}
+
+function removeRefreshToken() {
+  localStorage.removeItem("refreshToken");
+}
+
+function getRefreshToken() {
+  return localStorage.getItem("refreshToken");
+}
