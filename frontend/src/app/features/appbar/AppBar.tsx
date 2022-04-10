@@ -24,6 +24,7 @@ const ResponsiveAppBar = () => {
   const navigate = useNavigate();
   const accessToken = useSelector((state : RootState) => state.session.accessToken);
   const loading = useSelector((state : RootState) => state.session.loading);
+  const currentUser = useSelector((state : RootState) => state.session.currentUser);
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -56,11 +57,14 @@ const ResponsiveAppBar = () => {
   let sessionLinks;
   if (accessToken) {
     sessionLinks = <Box sx={{ flexGrow: 0 }}>
-    <Tooltip title="Open settings">
-      <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-        <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-      </IconButton>
-    </Tooltip>
+    <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+      <Typography marginRight={2} marginTop={1} textAlign="center">{currentUser?.email}</Typography>
+      <Tooltip title="Open settings">
+        <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+          <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+        </IconButton>
+      </Tooltip>
+    </Box>
     <Menu
       sx={{ mt: '45px' }}
       id="menu-appbar"

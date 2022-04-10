@@ -10,6 +10,7 @@ namespace :api do
     namespace :android do
       resources :books
     end
+    get '/users/me', to: 'users#me'
   end
 end
 
