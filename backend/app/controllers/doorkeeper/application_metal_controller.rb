@@ -9,6 +9,5 @@ module Doorkeeper
                   if: -> { Doorkeeper.config.enforce_content_type }
 
     ActiveSupport.run_load_hooks(:doorkeeper_metal_controller, self)
-
   end
 end
