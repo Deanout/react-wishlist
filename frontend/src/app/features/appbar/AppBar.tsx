@@ -13,6 +13,7 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import TokenRefresher from '../sessions/TokenRefresher';
 
 const pages = ['Home', 'Create Account', 'Login'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
@@ -125,6 +126,12 @@ const ResponsiveAppBar = () => {
                 sx={{ my: 2, color: 'white', display: 'block' }}
               >
                 Login
+              </Button>
+              <Button
+                onClick={(event) => handleNavigate("/logout", event)}
+                sx={{ my: 2, color: 'white', display: 'block' }}
+              >
+                Logout
               </Button>
           </Box>
 
