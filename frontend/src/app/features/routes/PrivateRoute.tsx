@@ -7,10 +7,10 @@ function PrivateRoute({children} : any) {
     const accessToken = useSelector((state : RootState) => state.session.accessToken); 
     const loading = useSelector((state : RootState) => state.session.loading);
     const location = useLocation();
-    let fromLocation = (location.state as any)?.from;
-    let previousLocation = location.state ? fromLocation : { pathname: '/login' };
+    const fromLocation = (location.state as any)?.from;
+    const previousLocation = location.state ? fromLocation : { pathname: '/login' };
 
-  if (!!accessToken && !loading) {
+  if (accessToken) {
     return children;
   } else if (loading) {
     return <p>Loading...</p>;

@@ -12,7 +12,7 @@ export async function createUserWithEmailAndPassword(
   email: string,
   password: string
 ) {
-  let data = {
+  const data = {
     email: email,
     password: password,
     client_id: CLIENT_ID,
@@ -32,7 +32,7 @@ export async function loginWithEmailAndPassword(
   email: string,
   password: string
 ) {
-  let data = {
+  const data = {
     grant_type: "password",
     email: email,
     password: password,
@@ -50,7 +50,7 @@ export async function loginWithEmailAndPassword(
     });
 }
 export async function logoutUserWithToken(token: string) {
-  let data = {
+  const data = {
     token: token,
     client_id: CLIENT_ID,
     client_secret: CLIENT_SECRET,
@@ -67,7 +67,7 @@ export async function logoutUserWithToken(token: string) {
 }
 
 export async function requestAccessTokenWithRefreshToken(refreshToken: string) {
-  let data = {
+  const data = {
     grant_type: "refresh_token",
     refresh_token: refreshToken,
     client_id: CLIENT_ID,
@@ -85,7 +85,7 @@ export async function requestAccessTokenWithRefreshToken(refreshToken: string) {
 }
 
 export async function getCurrentUser(accessToken: string) {
-  let config = {
+  const config = {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },

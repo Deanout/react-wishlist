@@ -3,12 +3,14 @@ import { Alert, Box, Button, Card, CardActions, CardContent, Container, Divider,
 import React, { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { selectLoading, signUpUser } from './sessionSlice';
+import { RootState } from '../../store';
+import { resetErrorState, selectLoading, signUpUser } from './sessionSlice';
 
 function Signup() {
     const emailRef = useRef<HTMLInputElement>();
     const passwordRef = useRef<HTMLInputElement>();
     const passwordConfirmationRef = useRef<HTMLInputElement>();
+    const errorMessages = useSelector((state: RootState) => state.session.errorMessages);
     const [errors, setErrors] = useState<Array<string>>([])
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const loading = useSelector(selectLoading)
@@ -17,11 +19,11 @@ function Signup() {
 
     useEffect(() => {
       emailRef?.current?.focus();
+      if (errorMessages !== undefined) {
+        setErrors(errorMessages);
+        dispatch(resetErrorState());
+      }
     }, [])
-
-    useEffect(() => {
-      setErrors([]);
-    }, [emailRef, passwordRef, passwordConfirmationRef])
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
@@ -45,11 +47,11 @@ function Signup() {
           password: passwordRef.current.value 
       }
       const response = await dispatch(signUpUser(payload)) as any;
-      if (response.payload.errors === undefined) {
+      if (errorMessages === undefined) {
           navigate("/")
       } else {
-        resetFormData();
-        setErrors(response.payload.errors);
+        
+        setErrors(errorMessages);
       }
   }
   const passwordInput = <OutlinedInput id="password" type={showPassword ? 'text' : 'password'} inputRef={passwordRef} endAdornment={
@@ -79,10 +81,7 @@ const passwordConfirmationInput =
     </InputAdornment>
   }
 />;
-function resetFormData() {
-    passwordInput.props.inputRef.current.value = "";
-    passwordConfirmationInput.props.inputRef.current.value = "";
-}
+
 return (
   <section style={{marginTop:"2em"}}>
           <Container maxWidth="md">
@@ -95,8 +94,8 @@ return (
                           {errors.length > 0 ?
                             <Alert severity="error" aria-live="assertive">
 
-                              {errors.map((error) => {
-                                return <p>
+                              {errors.map((error, index) => {
+                                return <p key={index}>
                                   {error}
                                 </p>
                               })}
@@ -108,7 +107,7 @@ return (
                                   <FormControl fullWidth>
                                       <InputLabel required htmlFor="email" id="email-label">Email Address</InputLabel>
                                       <Input id="email" type="email" inputRef={emailRef}/>
-                                      <FormHelperText id="email-helper-text">We'll never share your email.</FormHelperText>
+                                      <FormHelperText id="email-helper-text">We&apos;ll never share your email.</FormHelperText>
                                   </FormControl>
                               </FormGroup>
                               <FormGroup row={true} id="password-group" sx={{marginTop: "1em"}}>

@@ -7,15 +7,17 @@ function PublicOnlyRoute({children} : any) {
     const accessToken = useSelector((state : RootState) => state.session.accessToken); 
     const loading = useSelector((state : RootState) => state.session.loading);
     const location = useLocation();
+    const fromLocation = (location.state as any)?.from;
+    const previousLocation = location.state ? fromLocation : { pathname: '/' };
     
-  if (!accessToken) {
+  if (!accessToken && !loading) {
     return children;
   } else if (loading) {
     return <p>Loading...</p>;
-  } else {
-    let fromLocation = (location.state as any)?.from;
-      let previousLocation = location.state ? fromLocation : { pathname: '/' };
+  } else if (accessToken && !loading) {
       return <Navigate to={previousLocation} state={{from: location}} replace />;
+  } else {
+    return <p>Error</p>;
   }
 }
 

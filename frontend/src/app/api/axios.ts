@@ -1,6 +1,6 @@
 import axios from "axios";
 
-let instance = axios.create({
+const instance = axios.create({
   baseURL: process.env.REACT_APP_BACKEND_URL,
   headers: {
     "Content-Type": "application/json",
@@ -9,7 +9,5 @@ let instance = axios.create({
 });
 
 instance.defaults.xsrfHeaderName = "X-CSRF-Token";
-
-instance.defaults.withCredentials = true;
 
 export default instance;
