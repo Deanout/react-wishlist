@@ -68,7 +68,8 @@ module Api
 
       # Use callbacks to share common setup or constraints between actions.
       def set_book
-        @book = Book.find(params[:id])
+        @book = Book.find_by_id(params[:id])
+        render json: { error: 'Book not found' }, status: :not_found if @book.nil?
       end
 
       # Only allow a list of trusted parameters through.
