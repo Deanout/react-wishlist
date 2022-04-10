@@ -50,7 +50,6 @@ function Signup() {
       } else {
         resetFormData();
         setErrors(response.payload.errors);
-        console.log(errors);
       }
   }
   const passwordInput = <OutlinedInput id="password" type={showPassword ? 'text' : 'password'} inputRef={passwordRef} endAdornment={

@@ -12,13 +12,15 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const pages = ['Products', 'Pricing', 'Blog'];
+const pages = ['Home', 'Create Account', 'Login'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 const ResponsiveAppBar = () => {
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
+  const navigate = useNavigate();
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -34,6 +36,13 @@ const ResponsiveAppBar = () => {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
+  function handleNavigate(route:string, 
+    event: React.MouseEvent<HTMLLIElement, MouseEvent> | 
+    React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    event?.preventDefault();
+    navigate(route);
+  }
 
   return (
     <AppBar position="static">
@@ -77,11 +86,17 @@ const ResponsiveAppBar = () => {
                 display: { xs: 'block', md: 'none' },
               }}
             >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
-                </MenuItem>
-              ))}
+              
+              <MenuItem onClick={(event) => handleNavigate("/", event)}>
+                <Typography textAlign="center">Home</Typography>
+              </MenuItem>
+              <MenuItem onClick={(event) => handleNavigate("/signup", event)}>
+                <Typography textAlign="center">Create Account</Typography>
+              </MenuItem>
+              <MenuItem onClick={(event) => handleNavigate("/login", event)}>
+                <Typography textAlign="center">Login</Typography>
+              </MenuItem>
+              
             </Menu>
           </Box>
           <Typography
@@ -90,18 +105,27 @@ const ResponsiveAppBar = () => {
             component="div"
             sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}
           >
-            LOGO
+            WishList
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {pages.map((page) => (
               <Button
-                key={page}
-                onClick={handleCloseNavMenu}
+                onClick={(event) => handleNavigate("/", event)}
                 sx={{ my: 2, color: 'white', display: 'block' }}
               >
-                {page}
+                Home
               </Button>
-            ))}
+              <Button
+                onClick={(event) => handleNavigate("/signup", event)}
+                sx={{ my: 2, color: 'white', display: 'block' }}
+              >
+                Create Account
+              </Button>
+              <Button
+                onClick={(event) => handleNavigate("/login", event)}
+                sx={{ my: 2, color: 'white', display: 'block' }}
+              >
+                Login
+              </Button>
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
