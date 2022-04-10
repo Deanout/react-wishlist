@@ -164,7 +164,7 @@ export const sessionSlice = createSlice({
           id: action.payload.id,
           email: action.payload.email,
           role: action.payload.role,
-          createdAt: action.payload.createdAt,
+          createdAt: action.payload.created_at,
         };
 
         storeRefreshToken(action.payload.refresh_token);
@@ -191,7 +191,7 @@ export const sessionSlice = createSlice({
           id: action.payload.id,
           email: action.payload.email,
           role: action.payload.role,
-          createdAt: action.payload.createdAt,
+          createdAt: action.payload.created_at,
         };
 
         storeRefreshToken(action.payload.refresh_token);
@@ -247,7 +247,7 @@ export const sessionSlice = createSlice({
           id: action.payload.id,
           email: action.payload.email,
           role: action.payload.role,
-          createdAt: action.payload.createdAt,
+          createdAt: action.payload.created_at,
         };
         storeRefreshToken(action.payload.refresh_token);
 
@@ -269,7 +269,7 @@ export const sessionSlice = createSlice({
           id: action.payload.id,
           email: action.payload.email,
           role: action.payload.role,
-          createdAt: action.payload.createdAt,
+          createdAt: action.payload.created_at,
         };
         state.loading = false;
         state.error = false;
