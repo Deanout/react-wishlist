@@ -2,10 +2,9 @@ import axios from "./axios";
 
 const LOGIN_URL = "/oauth/token";
 const SIGNUP_URL = "/users";
-/**
- * TODO: Need to call revokeRefreshToken() when logout
- */
 const LOGOUT_URL = "/oauth/revoke";
+const CURRENT_USER_URL = "/users/me";
+
 const CLIENT_ID = process.env.REACT_APP_CLIENT_ID;
 const CLIENT_SECRET = process.env.REACT_APP_CLIENT_SECRET;
 
@@ -22,10 +21,10 @@ export async function createUserWithEmailAndPassword(
   return axios
     .post(SIGNUP_URL, data)
     .then((response: any) => {
-      return JSON.parse(response);
+      return response.data;
     })
     .catch((error: any) => {
-      return error.response;
+      return error.response.data;
     });
 }
 
@@ -50,6 +49,22 @@ export async function loginWithEmailAndPassword(
       return error.response.data;
     });
 }
+export async function logoutUserWithToken(token: string) {
+  let data = {
+    token: token,
+    client_id: CLIENT_ID,
+    client_secret: CLIENT_SECRET,
+  };
+
+  return axios
+    .post(LOGOUT_URL, data)
+    .then((response: any) => {
+      return response.data;
+    })
+    .catch((error: any) => {
+      return error.response.data;
+    });
+}
 
 export async function requestAccessTokenWithRefreshToken(refreshToken: string) {
   let data = {
@@ -61,6 +76,23 @@ export async function requestAccessTokenWithRefreshToken(refreshToken: string) {
 
   return axios
     .post(LOGIN_URL, data)
+    .then((response: any) => {
+      return response.data;
+    })
+    .catch((error: any) => {
+      return error.response.data;
+    });
+}
+
+export async function getCurrentUser(accessToken: string) {
+  let config = {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  };
+
+  return axios
+    .get(CURRENT_USER_URL, config)
     .then((response: any) => {
       return response.data;
     })

@@ -1,14 +1,18 @@
 import React, { useEffect } from 'react'
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import  {logout}  from '../sessions/sessionSlice';
+import { RootState } from '../../store';
+import { logoutUser } from './sessionSlice';
 
 function Logout() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const refreshToken = useSelector((state : RootState) => state.session.accessToken);
     
     useEffect(() => {
-        dispatch(logout());
+      if (!!refreshToken){
+        dispatch(logoutUser(refreshToken));
+      }
         navigate('/login');
     }, [])
   return (

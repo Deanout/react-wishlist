@@ -1,4 +1,5 @@
-import { useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import './App.css';
 import AppBar from './app/features/appbar/AppBar';
@@ -8,17 +9,13 @@ import PublicOnlyRoute from './app/features/routes/PublicOnlyRoute';
 import Login from './app/features/sessions/Login';
 import Logout from './app/features/sessions/Logout';
 import PersistLogin from './app/features/sessions/PersistLogin';
+import { setLoading } from './app/features/sessions/sessionSlice';
 import Signup from './app/features/sessions/Signup';
 import UpdateProfile from './app/features/sessions/UpdateProfile';
 import { RootState } from './app/store';
 
 
 function App() {
-  const loading = useSelector((state : RootState) => state.session.loading);
-  
-  if (loading) {
-    return <p>Loading...</p>;
-  } else {
     return (
       <div className="App">
         <Router>
@@ -43,7 +40,7 @@ function App() {
                     <UpdateProfile/>
                   </PrivateRoute>
                 }/>
-              </Route>
+              
               <Route path="/login" element={
                 <PublicOnlyRoute>
                   <Login />
@@ -54,12 +51,13 @@ function App() {
                   <Signup />
                 </PublicOnlyRoute> 
               }/>
+              </Route>
             </Routes>
           </main>
         </Router>
       </div>
     );
-  }
+  
 }
 
 export default App;

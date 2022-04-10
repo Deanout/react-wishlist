@@ -21,7 +21,7 @@ function PersistLogin() {
     if (!accessToken) {
       verifyRefreshToken();
     }
-  }, []);
+  }, [accessToken, refreshToken]);
   
   return (
   <>
