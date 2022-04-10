@@ -10,7 +10,7 @@ function Logout() {
     const refreshToken = useSelector((state : RootState) => state.session.accessToken);
     
     useEffect(() => {
-      if (!!refreshToken){
+      if (refreshToken){
         dispatch(logoutUser(refreshToken));
       }
         navigate('/login');

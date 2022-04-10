@@ -4,11 +4,12 @@ import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { RootState } from '../../store';
-import { loginUser } from './sessionSlice';
+import { loginUser, resetErrorState } from './sessionSlice';
 
 function Login() {
     const emailRef = useRef<HTMLInputElement>();
     const passwordRef = useRef<HTMLInputElement>();
+    const errorMessages = useSelector((state: RootState) => state.session.errorMessages);
     const [errors, setErrors] = useState<Array<string>>([])
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const loading = useSelector((state: RootState) => state.session.loading);
@@ -17,12 +18,12 @@ function Login() {
 
     useEffect(() => {
       emailRef?.current?.focus();
+      if (errorMessages !== undefined) {
+        setErrors(errorMessages);
+        dispatch(resetErrorState());
+      }
     }, [])
 
-    useEffect(() => {
-      setErrors([]);
-    }, [emailRef, passwordRef])
-    
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         setErrors([]);
@@ -38,11 +39,10 @@ function Login() {
         }
         const response = await dispatch(loginUser(payload)) as any;
         console.log(response)
-        if (response.payload.error === undefined) {
+        if (errorMessages === undefined) {
           navigate("/")
         } else {
-            resetFormData();
-            return setErrors([response.payload.error]);
+            return setErrors(errorMessages);
         }
     }
 
@@ -58,9 +58,6 @@ function Login() {
           </IconButton>
         </InputAdornment>
       }/>;
-      function resetFormData() {
-        passwordInput.props.inputRef.current.value = "";
-    }
 
   return (
     <div style={{marginTop:"2em"}}>
@@ -73,7 +70,6 @@ function Login() {
                             </Typography>
                             {errors.length > 0 ?
                             <Alert severity="error" aria-live="assertive">
-
                               {errors.map((error, index) => {
                                 return <p key={`alert-${index}`}>
                                   {error}

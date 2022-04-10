@@ -6,9 +6,9 @@ import { User } from '../sessions/sessionSlice'
 
 function Dashboard() {
 
-  let currentUser = useSelector((state: RootState) => state.session.currentUser)
-  let accessToken = useSelector((state: RootState) => state.session.accessToken)
-  let refreshToken = useSelector((state: RootState) => state.session.refreshToken)
+  const currentUser = useSelector((state: RootState) => state.session.currentUser)
+  const accessToken = useSelector((state: RootState) => state.session.accessToken)
+  const refreshToken = useSelector((state: RootState) => state.session.refreshToken)
 
   return (
     <section>

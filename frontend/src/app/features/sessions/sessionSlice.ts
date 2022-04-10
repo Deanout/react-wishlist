@@ -23,7 +23,7 @@ interface AuthState {
   currentUser?: User;
   loading: boolean;
   error: boolean;
-  errorMessage?: string;
+  errorMessages?: string[];
   accessToken?: string;
   refreshToken?: string | null;
   expiresIn?: number;
@@ -39,7 +39,7 @@ const initialState: AuthState = {
   },
   loading: true,
   error: false,
-  errorMessage: undefined,
+  errorMessages: [],
   accessToken: undefined,
   refreshToken: getRefreshToken(),
   expiresIn: undefined,
@@ -49,12 +49,12 @@ const initialState: AuthState = {
 export const signUpUser = createAsyncThunk(
   "session/signUpUser",
   async (payload: UserLoginData, { rejectWithValue }) => {
-    let response = await createUserWithEmailAndPassword(
+    const response = await createUserWithEmailAndPassword(
       payload.email,
       payload.password
     );
     if (response.errors) {
-      return rejectWithValue(response.data);
+      return rejectWithValue(response);
     }
     return response;
   }
@@ -63,20 +63,20 @@ export const signUpUser = createAsyncThunk(
 export const loginUser = createAsyncThunk(
   "session/loginUser",
   async (payload: UserLoginData, { rejectWithValue }) => {
-    let loginResponse = await loginWithEmailAndPassword(
+    const loginResponse = await loginWithEmailAndPassword(
       payload.email,
       payload.password
     );
     // if response has errors rejectwithvalue
     console.log(loginResponse);
     if (loginResponse.error) {
-      return rejectWithValue(loginResponse.data);
+      return rejectWithValue(loginResponse);
     }
-    let userResponse = await getCurrentUser(loginResponse.access_token);
+    const userResponse = await getCurrentUser(loginResponse.access_token);
     if (userResponse.error) {
       return rejectWithValue(userResponse.data);
     }
-    let response = {
+    const response = {
       ...loginResponse,
       ...userResponse,
     };
@@ -87,11 +87,11 @@ export const loginUser = createAsyncThunk(
 export const logoutUser = createAsyncThunk(
   "session/logoutUser",
   async (payload: string, { rejectWithValue }) => {
-    let response = await logoutUserWithToken(payload);
+    const response = await logoutUserWithToken(payload);
     // if response has errors rejectwithvalue
     console.log(response);
     if (response.error) {
-      return rejectWithValue(response.data);
+      return rejectWithValue(response);
     }
     return response;
   }
@@ -103,17 +103,17 @@ export const refreshAccessToken = createAsyncThunk(
     if (!refreshToken) {
       return rejectWithValue("No refresh token");
     }
-    let refreshResponse = await requestAccessTokenWithRefreshToken(
+    const refreshResponse = await requestAccessTokenWithRefreshToken(
       refreshToken
     );
     if (refreshResponse.error) {
       return rejectWithValue(refreshResponse.data);
     }
-    let userResponse = await getCurrentUser(refreshResponse.access_token);
+    const userResponse = await getCurrentUser(refreshResponse.access_token);
     if (userResponse.error) {
       return rejectWithValue(userResponse.data);
     }
-    let response = {
+    const response = {
       ...refreshResponse,
       ...userResponse,
     };
@@ -128,7 +128,7 @@ export const currentUser = createAsyncThunk(
     if (!accessToken) {
       return rejectWithValue("No access token");
     }
-    let response = await getCurrentUser(accessToken);
+    const response = await getCurrentUser(accessToken);
     if (response.error) {
       return rejectWithValue(response.data);
     }
@@ -143,60 +143,74 @@ export const sessionSlice = createSlice({
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
     },
+    resetErrorState: (state) => {
+      state.error = false;
+      state.errorMessages = [];
+    },
   },
   extraReducers: (builder) => {
     builder
       .addCase(signUpUser.pending, (state) => {
         state.loading = true;
         state.error = false;
+        state.errorMessages = [];
       })
       .addCase(signUpUser.fulfilled, (state, action: any) => {
         state.accessToken = action.payload.access_token;
         state.refreshToken = action.payload.refresh_token;
         state.expiresIn = action.payload.expires_in;
         state.tokenType = action.payload.token_type;
-        state.currentUser!.id = action.payload.id;
-        state.currentUser!.email = action.payload.email;
-        state.currentUser!.role = action.payload.role;
-        state.currentUser!.createdAt = action.payload.created_at;
+        state.currentUser = {
+          id: action.payload.id,
+          email: action.payload.email,
+          role: action.payload.role,
+          createdAt: action.payload.createdAt,
+        };
 
         storeRefreshToken(action.payload.refresh_token);
-        // storeUser(state.currentUser!);
 
         state.loading = false;
         state.error = false;
+        state.errorMessages = [];
       })
       .addCase(signUpUser.rejected, (state, action: any) => {
         state.loading = false;
         state.error = true;
-        state.errorMessage = action.payload.errors;
+        state.errorMessages = action.payload.errors;
       })
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.error = false;
+        state.errorMessages = [];
       })
       .addCase(loginUser.fulfilled, (state, action: any) => {
         state.accessToken = action.payload.access_token;
         state.refreshToken = action.payload.refresh_token;
         state.expiresIn = action.payload.expires_in;
-        state.currentUser!.id = action.payload.id;
-        state.currentUser!.email = action.payload.email;
-        state.currentUser!.role = action.payload.role;
-        state.currentUser!.createdAt = action.payload.created_at;
+        state.currentUser = {
+          id: action.payload.id,
+          email: action.payload.email,
+          role: action.payload.role,
+          createdAt: action.payload.createdAt,
+        };
 
         storeRefreshToken(action.payload.refresh_token);
 
         state.loading = false;
         state.error = false;
+        state.errorMessages = [];
       })
       .addCase(loginUser.rejected, (state, action: any) => {
         state.loading = false;
         state.error = true;
-        state.errorMessage = action.payload.error;
+        state.errorMessages = [
+          "Invalid credentials. Did you enter them correctly?",
+        ];
       })
       .addCase(logoutUser.pending, (state) => {
         state.loading = true;
         state.error = false;
+        state.errorMessages = [];
       })
       .addCase(logoutUser.fulfilled, (state, action: any) => {
         state.currentUser = {
@@ -213,28 +227,33 @@ export const sessionSlice = createSlice({
 
         state.loading = false;
         state.error = false;
+        state.errorMessages = [];
       })
       .addCase(logoutUser.rejected, (state, action: any) => {
         state.loading = false;
         state.error = true;
-        state.errorMessage = action.payload.error;
+        state.errorMessages = [action.payload.error];
       })
       .addCase(refreshAccessToken.pending, (state) => {
         state.loading = true;
         state.error = false;
+        state.errorMessages = [];
       })
       .addCase(refreshAccessToken.fulfilled, (state, action: any) => {
         state.accessToken = action.payload.access_token;
         state.refreshToken = action.payload.refresh_token;
         state.expiresIn = action.payload.expires_in;
-        state.currentUser!.id = action.payload.id;
-        state.currentUser!.email = action.payload.email;
-        state.currentUser!.role = action.payload.role;
-        state.currentUser!.createdAt = action.payload.created_at;
+        state.currentUser = {
+          id: action.payload.id,
+          email: action.payload.email,
+          role: action.payload.role,
+          createdAt: action.payload.createdAt,
+        };
         storeRefreshToken(action.payload.refresh_token);
 
         state.loading = false;
         state.error = false;
+        state.errorMessages = [];
       })
       .addCase(refreshAccessToken.rejected, (state, action: any) => {
         state.loading = false;
@@ -243,16 +262,18 @@ export const sessionSlice = createSlice({
       .addCase(currentUser.pending, (state) => {
         state.loading = true;
         state.error = false;
+        state.errorMessages = [];
       })
       .addCase(currentUser.fulfilled, (state, action: any) => {
         state.currentUser = {
           id: action.payload.id,
           email: action.payload.email,
           role: action.payload.role,
-          createdAt: action.payload.created_at,
+          createdAt: action.payload.createdAt,
         };
         state.loading = false;
         state.error = false;
+        state.errorMessages = [];
       })
       .addCase(currentUser.rejected, (state, action: any) => {
         state.loading = false;
@@ -261,7 +282,7 @@ export const sessionSlice = createSlice({
   },
 });
 
-export const { setLoading } = sessionSlice.actions;
+export const { setLoading, resetErrorState } = sessionSlice.actions;
 
 export const selectLoading = (state: RootState) => state.session?.loading;
 
