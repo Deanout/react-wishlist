@@ -10,6 +10,4 @@ const instance = axios.create({
 
 instance.defaults.xsrfHeaderName = "X-CSRF-Token";
 
-instance.defaults.withCredentials = true;
-
 export default instance;
